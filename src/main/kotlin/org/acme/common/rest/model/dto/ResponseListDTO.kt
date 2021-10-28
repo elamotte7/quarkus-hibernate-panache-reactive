@@ -1,4 +1,4 @@
-package fr.csn.ficen.api.common.rest.model.dto
+package org.acme.common.rest.model.dto
 
 data class ResponseListDTO<T>(
     val totalResultCount: Long,

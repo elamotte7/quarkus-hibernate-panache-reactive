@@ -1,4 +1,4 @@
-package fr.csn.ficen.api.common.rest.pagination
+package org.acme.common.rest.pagination
 
 import javax.validation.constraints.Positive
 import javax.validation.constraints.PositiveOrZero

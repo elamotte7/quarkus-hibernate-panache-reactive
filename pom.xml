@@ -19,6 +19,9 @@
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <kotlin.version>1.5.31</kotlin.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
+        <mariadb.password>quarkus</mariadb.password>
+        <docker-plugin.version>0.37.0</docker-plugin.version>
+        <mariadb.image>mariadb:10.5.12-focal</mariadb.image>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -213,6 +216,74 @@
                         <phase>test-compile</phase>
                         <goals>
                             <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker-plugin.version}</version>
+                <configuration>
+                    <!-- Configured Docker images -->
+                    <images>
+                        <!-- MariaDB image -->
+                        <image>
+                            <name>test-mariadb</name>
+                            <alias>test-mariadb</alias>
+                            <build>
+                                <from>${mariadb.image}</from>
+                                <assembly>
+                                    <mode>dir</mode>
+                                    <!-- database startup script -->
+                                    <targetDir>/docker-entrypoint-initdb.d</targetDir>
+                                    <inline>
+                                        <files>
+                                            <file>
+                                                <source>src/test/docker/setup-mariadb.sql</source>
+                                            </file>
+                                        </files>
+                                    </inline>
+                                </assembly>
+                                <env>
+                                    <MYSQL_ROOT_PASSWORD>${mariadb.password}</MYSQL_ROOT_PASSWORD>
+                                </env>
+                            </build>
+                            <run>
+                                <ports>
+                                    <port>3306:3306</port>
+                                </ports>
+                                <!-- Wait for database up and running -->
+                                <wait>
+                                    <tcp>
+                                        <ports>
+                                            <port>3306</port>
+                                        </ports>
+                                    </tcp>
+                                    <time>300000</time>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                    <!-- If we want to skip tests we should also skip Docker plugin execution -->
+                    <skip>${maven.test.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!-- start Docker -->
+                        <id>start</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <!-- stop Docker -->
+                        <id>stop</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                 </executions>
