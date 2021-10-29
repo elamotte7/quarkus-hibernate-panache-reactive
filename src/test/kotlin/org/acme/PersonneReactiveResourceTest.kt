@@ -1,12 +1,11 @@
 package org.acme
 
-import org.acme.common.rest.model.dto.ResponseListDTO
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import io.restassured.common.mapper.TypeRef
 import io.restassured.response.Response
+import org.acme.common.rest.model.dto.ResponseListDTO
 import org.acme.dto.PersonneDTO
-import org.acme.hibernate.enums.SexePersonneEnum
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Order
@@ -25,7 +24,7 @@ class PersonneReactiveResourceTest {
         val responseListDTO: ResponseListDTO<PersonneDTO>? = response
             .then().statusCode(javax.ws.rs.core.Response.Status.OK.statusCode)
             .extract().`as`(object : TypeRef<ResponseListDTO<PersonneDTO>>() {})
-        assertEquals(4, responseListDTO?.totalResultCount)
+        assertEquals(3, responseListDTO?.totalResultCount)
     }
 
     @Test
